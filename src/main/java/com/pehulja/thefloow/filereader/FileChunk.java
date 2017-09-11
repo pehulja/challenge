@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FileChunk
 {
-    private String fileId;
-    private String fileName;
+    private FileInfo fileInfo;
     private Long chunkId;
     private String content;
 }

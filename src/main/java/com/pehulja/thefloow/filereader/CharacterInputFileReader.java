@@ -56,8 +56,11 @@ public class CharacterInputFileReader implements InputFileReader
         fileChunkConsumer.accept(FileChunk.builder()
                 .chunkId(chunkId)
                 .content(chunkContent)
-                .fileName(fileName)
-                .fileId(fileId)
+                .fileInfo(
+                    FileInfo.builder()
+                        .fileName(fileName)
+                        .fileId(fileId)
+                            .build())
                 .build());
     }
 }

@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.pehulja.thefloow.filereader.FileInfo;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -151,8 +152,11 @@ public class DefaultQueueServiceTest implements Supplier<QueueItem>
                 .fileChunk(FileChunk.builder()
                         .content("content")
                         .chunkId(randomizer.nextLong())
-                        .fileId(UUID.randomUUID().toString())
-                        .fileName(UUID.randomUUID().toString())
+                        .fileInfo(
+                            FileInfo.builder()
+                                .fileId(UUID.randomUUID().toString())
+                                .fileName(UUID.randomUUID().toString())
+                                .build())
                         .build())
                 .build();
     }
