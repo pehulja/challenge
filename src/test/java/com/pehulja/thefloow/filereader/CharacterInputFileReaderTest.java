@@ -23,7 +23,7 @@ public class CharacterInputFileReaderTest
     public void chunksProcessor() throws Exception
     {
         Path inputFile = Paths.get(this.getClass().getClassLoader().getResource("enwiki-20170701-pages-articles-multistream-index.txt").toURI());
-        reader.chunksProcessor(inputFile, 1024 * 8, chunk -> {
+            reader.chunksProcessor(inputFile, 1024 * 8, chunk -> {
         });
     }
 

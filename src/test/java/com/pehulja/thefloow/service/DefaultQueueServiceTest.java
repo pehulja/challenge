@@ -113,7 +113,7 @@ public class DefaultQueueServiceTest implements Supplier<QueueItem>
         CompletionService<List<QueueItem>> pollingExecutorService = new ExecutorCompletionService(executorService);
         List<QueueItem> joinedActualList = new ArrayList<>();
 
-        for(int i = 0; i < 2; i++){
+        for(int i = 0; i < 5; i++){
             pollingExecutorService.submit(() ->
             {
                 Optional<QueueItem> optional;
@@ -126,7 +126,7 @@ public class DefaultQueueServiceTest implements Supplier<QueueItem>
             });
         }
 
-        for(int i = 0; i < 2; i++){
+        for(int i = 0; i < 5; i++){
             joinedActualList.addAll(pollingExecutorService.take().get());
         }
 

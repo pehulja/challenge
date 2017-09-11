@@ -45,17 +45,10 @@ public class DefaultQueueService implements QueueService, InitializingBean, Disp
     @Override
     public Optional<QueueItem> poll()
     {
-        PageRequest pageRequest = new PageRequest(0, 1);
         Query query = new Query();
         query.limit(1);
 
-        List<QueueItem> list = mongoTemplate.findAllAndRemove(query, QueueItem.class);
-
-        if(list == null || list.isEmpty()){
-            return Optional.empty();
-        } else {
-            return Optional.of(list.get(0));
-        }
+        return Optional.ofNullable(mongoTemplate.findAndRemove(query, QueueItem.class));
     }
 
     @Override
