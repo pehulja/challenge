@@ -26,7 +26,7 @@ public class Cli implements CommandMarker
     @Autowired
     private FileProcessor fileProcessor;
 
-    @CliCommand (value = {"queue-statistics"})
+    @CliCommand (value = {"print-queue-statistics"})
     public String getQueueStatistics()
     {
         return queueStatisticsService.getQueueStatistics().toString();
