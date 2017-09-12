@@ -17,15 +17,14 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.pehulja.thefloow.filereader.FileInfo;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.pehulja.thefloow.AbstractTestWithMongo;
 import com.pehulja.thefloow.filereader.FileChunk;
 import com.pehulja.thefloow.queue.QueueItem;
 import com.pehulja.thefloow.repository.QueueItemRepository;
@@ -35,7 +34,7 @@ import com.pehulja.thefloow.repository.QueueItemRepository;
  */
 @RunWith (SpringRunner.class)
 @SpringBootTest
-public class DefaultQueueServiceTest implements Supplier<QueueItem>
+public class DefaultQueueServiceTest extends AbstractTestWithMongo implements Supplier<QueueItem>
 {
     private Random randomizer = new Random();
 
@@ -44,11 +43,6 @@ public class DefaultQueueServiceTest implements Supplier<QueueItem>
 
     @Autowired
     private QueueItemRepository queueItemRepository;
-
-    @Before
-    public void cleanUpStorage(){
-        queueItemRepository.deleteAll();
-    }
 
     @Test
     public void pushSingle() throws Exception
@@ -152,11 +146,8 @@ public class DefaultQueueServiceTest implements Supplier<QueueItem>
                 .fileChunk(FileChunk.builder()
                         .content("content")
                         .chunkId(randomizer.nextLong())
-                        .fileInfo(
-                            FileInfo.builder()
-                                .fileId(UUID.randomUUID().toString())
-                                .fileName(UUID.randomUUID().toString())
-                                .build())
+                        .fileId(UUID.randomUUID().toString())
+                        .fileName(UUID.randomUUID().toString())
                         .build())
                 .build();
     }

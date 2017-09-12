@@ -1,40 +1,33 @@
 package com.pehulja.thefloow.repository;
 
-import com.pehulja.thefloow.filereader.FileInfo;
-import com.pehulja.thefloow.statistics.Statistics;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.junit.Assert.*;
+import com.pehulja.thefloow.AbstractTestWithMongo;
+import com.pehulja.thefloow.statistics.Statistics;
 
 /**
  * Created by baske on 11.09.2017.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class StatisticsRepositoryTest implements Supplier<Statistics> {
+public class StatisticsRepositoryTest extends AbstractTestWithMongo implements Supplier<Statistics>
+{
     private Random random = new Random();
 
     @Autowired
     private StatisticsRepository statisticsRepository;
-
-    @Before
-    public void cleanUpStorage(){
-        statisticsRepository.deleteAll();
-    }
 
     @Test
     public void findByFileId() throws Exception {
@@ -57,6 +50,22 @@ public class StatisticsRepositoryTest implements Supplier<Statistics> {
         statistics.setFileName("updatedFileName");
         statistics = statisticsRepository.save(statistics);
         Assertions.assertThat(statistics.getVersion()).isEqualTo(1l);
+    }
+
+    @Test
+    public void findByFileNamePresent()
+    {
+        Statistics statistics = statisticsRepository.save(this.get());
+        List<Statistics> actual = statisticsRepository.findByFileName(statistics.getFileName());
+        Assertions.assertThat(actual).containsOnly(statistics);
+    }
+
+    @Test
+    public void findByFileNameAbsent()
+    {
+        statisticsRepository.save(this.get());
+        List<Statistics> actual = statisticsRepository.findByFileName("anyFileName");
+        Assertions.assertThat(actual).isEmpty();
     }
 
     @Override

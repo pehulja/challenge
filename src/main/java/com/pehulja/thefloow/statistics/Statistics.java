@@ -1,11 +1,16 @@
 package com.pehulja.thefloow.statistics;
 
-import com.pehulja.thefloow.filereader.FileInfo;
-import lombok.*;
+import java.util.Map;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
-import java.util.Map;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Singular;
 
 /**
  * Created by baske on 11.09.2017.

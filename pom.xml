@@ -30,6 +30,20 @@
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.springframework.shell/spring-shell -->
+		<dependency>
+			<groupId>org.springframework.shell</groupId>
+			<artifactId>spring-shell</artifactId>
+			<version>1.2.0.RELEASE</version>
+		</dependency>
+
+		<!-- To make friends between Spring Boot and Spring Shell -->
+		<dependency>
+			<groupId>org.mvnsearch.spring.boot</groupId>
+			<artifactId>spring-boot-starter-shell</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -51,7 +65,7 @@
 		<dependency>
 			<groupId>de.flapdoodle.embed</groupId>
 			<artifactId>de.flapdoodle.embed.mongo</artifactId>
-			<scope>test</scope>
+			<!--<scope>test</scope>-->
 		</dependency>
 	</dependencies>
 
@@ -60,9 +74,31 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- do not enable it, this will creats a non standard jar and cause autoconfig to fail -->
+					<executable>false</executable>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
+	<repositories>
+		<repository>
+			<id>mvnsearch_nexus</id>
+			<name>mvnsearch nexus Releases</name>
+			<url>http://nexus.mvnsearch.org/content/repositories/releases/</url>
+		</repository>
+		<repository>
+			<id>mvnsearch_nexus_snapshots</id>
+			<name>mvnsearch nexus Snapshots</name>
+			<url>http://nexus.mvnsearch.org/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
 
 </project>

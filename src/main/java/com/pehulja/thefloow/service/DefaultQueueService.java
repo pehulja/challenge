@@ -1,17 +1,14 @@
 package com.pehulja.thefloow.service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -34,6 +31,9 @@ public class DefaultQueueService implements QueueService, InitializingBean, Disp
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    private QueueStatisticsService queueStatisticsService;
+
     private ExecutorService executorService;
 
     @Override
@@ -55,8 +55,6 @@ public class DefaultQueueService implements QueueService, InitializingBean, Disp
     public void destroy() throws Exception
     {
         executorService.shutdown();
-
-        executorService.awaitTermination(10, TimeUnit.MINUTES);
     }
 
     @Override

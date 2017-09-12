@@ -3,6 +3,7 @@ package com.pehulja.thefloow.filereader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,12 @@ public class CharacterInputFileReaderTest
     private CharacterInputFileReader reader;
 
     @Test
+    @Ignore
     public void chunksProcessor() throws Exception
     {
         Path inputFile = Paths.get(this.getClass().getClassLoader().getResource("enwiki-20170701-pages-articles-multistream-index.txt").toURI());
-            reader.chunksProcessor(inputFile, 1024 * 8, chunk -> {
+        reader.chunksProcessor(inputFile, chunk ->
+        {
         });
     }
 

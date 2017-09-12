@@ -8,5 +8,5 @@ import java.util.function.Consumer;
  */
 public interface InputFileReader
 {
-    void chunksProcessor(Path file, long maxChunkSize, Consumer<FileChunk> fileChunkConsumer) throws Exception;
+    void chunksProcessor(Path file, Consumer<FileChunk> fileChunkConsumer) throws Exception;
 }

@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,10 +20,13 @@ public class CharacterInputFileReader implements InputFileReader
     @Autowired
     private ChunkSplitPolicy chunkSplitPolicy;
 
+    @Value ("${chunk.max-size}")
+    private Long maxChunkSize;
+
     private Character [] WORDS_SEPARATOR = {' ', '\n'};
 
     @Override
-    public void chunksProcessor(Path file, long maxChunkSize, Consumer<FileChunk> fileChunkConsumer) throws IOException
+    public void chunksProcessor(Path file, Consumer<FileChunk> fileChunkConsumer) throws IOException
     {
         final String FILE_NAME = file.getFileName().toString();
         final String FILE_ID = UUID.randomUUID().toString();
@@ -56,11 +60,8 @@ public class CharacterInputFileReader implements InputFileReader
         fileChunkConsumer.accept(FileChunk.builder()
                 .chunkId(chunkId)
                 .content(chunkContent)
-                .fileInfo(
-                    FileInfo.builder()
-                        .fileName(fileName)
-                        .fileId(fileId)
-                            .build())
+                .fileName(fileName)
+                .fileId(fileId)
                 .build());
     }
 }

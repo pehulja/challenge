@@ -1,5 +1,7 @@
 package com.pehulja.thefloow.filereader;
 
+import org.springframework.data.mongodb.core.index.Indexed;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +16,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FileChunk
 {
-    private FileInfo fileInfo;
+    @Indexed (unique = true)
+    private String fileId;
+
+    @Indexed
+    private String fileName;
+
     private Long chunkId;
     private String content;
 }
