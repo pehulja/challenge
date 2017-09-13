@@ -3,6 +3,8 @@ package com.pehulja.thefloow.filereader;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import com.pehulja.thefloow.storage.documents.FileChunk;
+
 /**
  * Created by eyevpek on 2017-09-11.
  */

@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import com.pehulja.thefloow.service.LeastFrequentlyUsedWordMetric;
-import com.pehulja.thefloow.service.Metric;
-import com.pehulja.thefloow.service.MostFrequentlyUsedWordMetric;
+import com.pehulja.thefloow.metric.LeastFrequentlyUsedWordMetric;
+import com.pehulja.thefloow.metric.Metric;
+import com.pehulja.thefloow.metric.MostFrequentlyUsedWordMetric;
 
 /**
  * Created by eyevpek on 2017-09-11.

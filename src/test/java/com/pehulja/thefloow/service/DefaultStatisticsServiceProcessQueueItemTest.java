@@ -16,11 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.pehulja.thefloow.UnableUpdateDocumentException;
-import com.pehulja.thefloow.filereader.FileChunk;
-import com.pehulja.thefloow.queue.QueueItem;
-import com.pehulja.thefloow.repository.StatisticsRepository;
-import com.pehulja.thefloow.statistics.Statistics;
+import com.pehulja.thefloow.exception.UnableUpdateDocumentException;
+import com.pehulja.thefloow.storage.documents.FileChunk;
+import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
+import com.pehulja.thefloow.storage.documents.QueueItem;
+import com.pehulja.thefloow.storage.repository.FileWordsStatisticsRepository;
 
 /**
  * Created by baske on 12.09.2017.
@@ -30,7 +30,7 @@ import com.pehulja.thefloow.statistics.Statistics;
 public class DefaultStatisticsServiceProcessQueueItemTest
 {
     @Mock
-    private StatisticsRepository statisticsRepository;
+    private FileWordsStatisticsRepository fileWordsStatisticsRepository;
 
     @InjectMocks
     @Spy
@@ -38,7 +38,7 @@ public class DefaultStatisticsServiceProcessQueueItemTest
     private DefaultStatisticsService defaultStatisticsService;
 
     @Captor
-    private ArgumentCaptor<Statistics> argumentCaptor;
+    private ArgumentCaptor<FileWordsStatistics> argumentCaptor;
 
     @Before
     public void setupMocks()
@@ -52,7 +52,7 @@ public class DefaultStatisticsServiceProcessQueueItemTest
         String fileId = "fileId";
         String fileName = "fileName";
 
-        Statistics expected = Statistics.builder()
+        FileWordsStatistics expected = FileWordsStatistics.builder()
                 .fileId(fileId)
                 .fileName(fileName)
                 .statistic("hello", 3l)
@@ -72,7 +72,7 @@ public class DefaultStatisticsServiceProcessQueueItemTest
                 .build();
 
         Mockito.doAnswer(i -> i.getArguments()[0]).when(defaultStatisticsService).optimisticUpdate(argumentCaptor.capture(), Mockito.any());
-        Statistics actual = defaultStatisticsService.processQueueItem(queueItem);
+        FileWordsStatistics actual = defaultStatisticsService.processQueueItem(queueItem);
 
         Assertions.assertThat(actual).isEqualTo(expected);
         Assertions.assertThat(argumentCaptor.getValue()).isEqualTo(expected);

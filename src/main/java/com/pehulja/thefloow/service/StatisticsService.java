@@ -1,17 +1,13 @@
 package com.pehulja.thefloow.service;
 
-import java.util.function.BinaryOperator;
-
-import com.pehulja.thefloow.UnableUpdateDocumentException;
-import com.pehulja.thefloow.queue.QueueItem;
-import com.pehulja.thefloow.statistics.Statistics;
+import com.pehulja.thefloow.exception.UnableUpdateDocumentException;
+import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
+import com.pehulja.thefloow.storage.documents.QueueItem;
 
 /**
  * Created by baske on 11.09.2017.
  */
 public interface StatisticsService
 {
-    Statistics optimisticUpdate(Statistics statistics, BinaryOperator<Statistics> retryOperation) throws UnableUpdateDocumentException;
-
-    Statistics processQueueItem(QueueItem queueItem) throws UnableUpdateDocumentException;
+    FileWordsStatistics processQueueItem(QueueItem queueItem) throws UnableUpdateDocumentException;
 }

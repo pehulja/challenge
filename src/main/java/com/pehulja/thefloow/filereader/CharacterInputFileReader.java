@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.pehulja.thefloow.storage.documents.FileChunk;
+
 /**
  * Created by eyevpek on 2017-09-11.
  */

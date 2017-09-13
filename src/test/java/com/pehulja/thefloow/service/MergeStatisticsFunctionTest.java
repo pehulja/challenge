@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.pehulja.thefloow.statistics.Statistics;
+import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
 
 /**
  * Created by eyevpek on 2017-09-12.
@@ -41,19 +41,19 @@ public class MergeStatisticsFunctionTest
         expectedMap.put("c", 7l);
         expectedMap.put("d", 4l);
 
-        Statistics expected = Statistics.builder().statistics(expectedMap).fileId("id2").fileName("filename2").version(3l).build();
+        FileWordsStatistics expected = FileWordsStatistics.builder().statistics(expectedMap).fileId("id2").fileName("filename2").version(3l).build();
 
-        Statistics source = Statistics.builder().statistics(new HashMap<>(map1)).fileId("id1").fileName("filename1").version(1l).build();
-        Statistics target = Statistics.builder().statistics(new HashMap<>(map2)).fileId("id2").fileName("filename2").version(3l).build();
+        FileWordsStatistics source = FileWordsStatistics.builder().statistics(new HashMap<>(map1)).fileId("id1").fileName("filename1").version(1l).build();
+        FileWordsStatistics target = FileWordsStatistics.builder().statistics(new HashMap<>(map2)).fileId("id2").fileName("filename2").version(3l).build();
 
-        Statistics actual = mergeStatisticsFunction.apply(source, target);
+        FileWordsStatistics actual = mergeStatisticsFunction.apply(source, target);
 
-        // Verify actual merged statistics equals expected
+        // Verify actual merged wordStatistics equals expected
         Assertions.assertThat(actual).isEqualTo(expected);
 
         //Verify that merge operation doesnt affect input arguments to function
-        Assertions.assertThat(source.getStatistics()).isEqualTo(map1);
-        Assertions.assertThat(target.getStatistics()).isEqualTo(map2);
+        Assertions.assertThat(source.getWordStatistics()).isEqualTo(map1);
+        Assertions.assertThat(target.getWordStatistics()).isEqualTo(map2);
     }
 
 }
