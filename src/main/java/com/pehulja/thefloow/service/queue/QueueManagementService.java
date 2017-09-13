@@ -1,7 +1,7 @@
 package com.pehulja.thefloow.service.queue;
 
-import java.util.Optional;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 import com.pehulja.thefloow.storage.documents.QueueItem;
 
@@ -12,5 +12,5 @@ public interface QueueManagementService
 {
     Future<QueueItem> push(QueueItem queueItem);
 
-    Optional<QueueItem> poll();
+    void registerSubscriber(Consumer<QueueItem> subscriber);
 }

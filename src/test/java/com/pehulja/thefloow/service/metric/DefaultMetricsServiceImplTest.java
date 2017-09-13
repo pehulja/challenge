@@ -1,4 +1,4 @@
-package com.pehulja.thefloow.service;
+package com.pehulja.thefloow.service.metric;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,29 +9,34 @@ import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.pehulja.thefloow.metric.LeastFrequentlyUsedWordMetric;
 import com.pehulja.thefloow.metric.Metric;
 import com.pehulja.thefloow.metric.MostFrequentlyUsedWordMetric;
 import com.pehulja.thefloow.metric.WordsMetricHolder;
-import com.pehulja.thefloow.service.metric.DefaultMetricServiceImpl;
 import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
 import com.pehulja.thefloow.storage.repository.FileWordsStatisticsRepository;
 
 /**
  * Created by eyevpek on 2017-09-12.
  */
-public class DefaultMetricServiceImplTest
+@RunWith (SpringRunner.class)
+@SpringBootTest
+public class DefaultMetricsServiceImplTest
 {
     public static final String FILE_NAME = "fileName";
     public static final String DIFFERENT_FILE_NAME = "differentFileName";
+
     @InjectMocks
     @Spy
-    private DefaultMetricServiceImpl defaultMetricsServiceSpy;
+    private DefaultMetricsServiceImpl defaultMetricsServiceSpy;
 
     private Set<Metric> metricsMock;
 

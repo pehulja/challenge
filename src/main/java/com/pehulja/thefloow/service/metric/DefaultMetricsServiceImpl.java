@@ -19,7 +19,7 @@ import lombok.Setter;
  */
 @Service
 @Setter
-public class DefaultMetricServiceImpl implements MetricService
+public class DefaultMetricsServiceImpl implements MetricsService
 {
     @Autowired
     private Set<Metric> metrics;

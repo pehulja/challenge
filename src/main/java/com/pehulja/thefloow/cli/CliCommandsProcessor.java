@@ -7,9 +7,9 @@ import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
 import com.pehulja.thefloow.metric.WordsMetricHolder;
-import com.pehulja.thefloow.service.file_processing.FileProcessor;
-import com.pehulja.thefloow.service.metric.MetricService;
+import com.pehulja.thefloow.service.metric.MetricsService;
 import com.pehulja.thefloow.service.queue.statistics.QueueStatisticsService;
+import com.pehulja.thefloow.service.text_processing.FileProcessor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,24 +24,24 @@ public class CliCommandsProcessor implements CommandMarker
     private QueueStatisticsService queueStatisticsService;
 
     @Autowired
-    private MetricService metricService;
+    private MetricsService metricService;
 
     @Autowired
     private FileProcessor fileProcessor;
 
-    @CliCommand (value = {"print-queue-wordStatistics"})
+    @CliCommand (value = {"print-queue-statistics"})
     public String getQueueStatistics()
     {
         return queueStatisticsService.getQueueStatistics().toString();
     }
 
-    @CliCommand (value = {"print-file-wordStatistics"}, help = "use --file-name [file-name] to get wordStatistics per specific file name imported")
+    @CliCommand (value = {"print-file-statistics"}, help = "use --file-name [file-name] to get wordStatistics per specific file name imported")
     public String getFileWordsStatistics(@CliOption (key = {"file-name"}, mandatory = true) String fileName)
     {
         return metricService.byFileName(fileName).map(WordsMetricHolder::toString).orElse("Nothing to show");
     }
 
-    @CliCommand (value = {"print-overall-wordStatistics"})
+    @CliCommand (value = {"print-overall-statistics"})
     public String getOverallStatistics()
     {
         return metricService.overall().map(WordsMetricHolder::toString).orElse("Nothing to show");
@@ -62,6 +62,6 @@ public class CliCommandsProcessor implements CommandMarker
         }
 
         return String.format("File %s has been imported and chunks pushed to the Mongo queue, \n" +
-                "execute 'print-queue-wordStatistics' to see Mongo queue status");
+                "execute 'print-queue-wordStatistics' to see Mongo queue status", file);
     }
 }

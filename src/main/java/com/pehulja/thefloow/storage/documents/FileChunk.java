@@ -1,5 +1,7 @@
 package com.pehulja.thefloow.storage.documents;
 
+import java.util.Optional;
+
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import lombok.AllArgsConstructor;
@@ -23,5 +25,18 @@ public class FileChunk
     private String fileName;
 
     private Long chunkId;
+
     private String content;
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder("FileChunk{");
+        sb.append("fileId='").append(fileId).append('\'');
+        sb.append(", fileName='").append(fileName).append('\'');
+        sb.append(", chunkId=").append(chunkId);
+        sb.append(", content size='").append(Optional.ofNullable(content).map(String::length).orElse(0)).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

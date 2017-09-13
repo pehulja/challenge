@@ -1,4 +1,4 @@
-package com.pehulja.thefloow.service;
+package com.pehulja.thefloow.service.text_processing;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -34,7 +34,6 @@ public class DefaultFileChunkProcessorTest extends AbstractTestWithMongo
     @Before
     public void fillQueue()
     {
-
         String textToParse = "hello>hi. hello\nhi hello-hi hello_hi hi\n";
 
         for (long i = 0; i < 2; i++)
@@ -66,7 +65,9 @@ public class DefaultFileChunkProcessorTest extends AbstractTestWithMongo
 
         FileWordsStatistics actual = fileWordsStatisticsRepository.findOne(FILE_ID);
 
-        Assertions.assertThat(actual).isEqualTo(expected);
+        Assertions.assertThat(actual.getWordStatistics()).isEqualTo(expected.getWordStatistics());
+        Assertions.assertThat(actual.getFileId()).isEqualTo(expected.getFileId());
+        Assertions.assertThat(actual.getFileName()).isEqualTo(expected.getFileName());
     }
 
 }

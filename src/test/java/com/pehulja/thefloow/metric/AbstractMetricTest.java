@@ -27,7 +27,6 @@ public class AbstractMetricTest
     public void setupMocks()
     {
         abstractMetricMock = Mockito.mock(AbstractMetric.class, Mockito.CALLS_REAL_METHODS);
-        ;
     }
 
     @Test
@@ -35,12 +34,12 @@ public class AbstractMetricTest
     {
         List<FileWordsStatistics> statistics = new ArrayList<>();
         statistics.add(FileWordsStatistics.builder()
-                .statistic("a", 1l)
-                .statistic("b", 2l)
+                .wordStatistic("a", 1l)
+                .wordStatistic("b", 2l)
                 .build());
         statistics.add(FileWordsStatistics.builder()
-                .statistic("a", 3l)
-                .statistic("c", 4l)
+                .wordStatistic("a", 3l)
+                .wordStatistic("c", 4l)
                 .build());
 
         Map<String, Long> expected = new HashMap<>();

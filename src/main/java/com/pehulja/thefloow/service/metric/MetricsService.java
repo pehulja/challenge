@@ -9,7 +9,7 @@ import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
 /**
  * Created by eyevpek on 2017-09-12.
  */
-public interface MetricService
+public interface MetricsService
 {
     WordsMetricHolder collectMetrics(List<FileWordsStatistics> statistics);
 

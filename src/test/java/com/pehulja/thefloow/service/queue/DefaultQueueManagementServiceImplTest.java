@@ -1,4 +1,4 @@
-package com.pehulja.thefloow.service;
+package com.pehulja.thefloow.service.queue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.pehulja.thefloow.AbstractTestWithMongo;
-import com.pehulja.thefloow.service.queue.DefaultQueueManagementServiceImpl;
 import com.pehulja.thefloow.storage.documents.FileChunk;
 import com.pehulja.thefloow.storage.documents.QueueItem;
 import com.pehulja.thefloow.storage.repository.QueueItemRepository;

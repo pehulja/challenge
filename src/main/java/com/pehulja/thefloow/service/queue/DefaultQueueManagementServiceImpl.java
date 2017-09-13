@@ -1,10 +1,16 @@
 package com.pehulja.thefloow.service.queue;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -22,13 +28,13 @@ import com.pehulja.thefloow.storage.repository.QueueItemRepository;
  * Created by eyevpek on 2017-09-11.
  */
 @Service
-public class DefaultQueueManagementServiceImpl implements QueueManagementService, InitializingBean, DisposableBean
+public class DefaultQueueManagementServiceImpl implements QueueManagementService, InitializingBean, DisposableBean, Supplier<Runnable>
 {
     @Autowired
     private QueueItemRepository queueItemRepository;
 
     @Value ("${mongo.insert-thread-number}")
-    private Integer threadNumber;
+    private Integer pushThreadNumber;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -36,16 +42,44 @@ public class DefaultQueueManagementServiceImpl implements QueueManagementService
     @Autowired
     private QueueStatisticsService queueStatisticsService;
 
-    private ExecutorService executorService;
+    @Value ("${queue.listener.delay}")
+    private Integer fixedDelay;
+
+    @Value ("${queue.listener.threads}")
+    private Integer pollThreadNumber;
+
+    @Value ("${queue.listener.enabled}")
+    private boolean isListenerPoolingEnabled;
+
+    private ExecutorService pushExecutorService;
+    private ScheduledExecutorService pollingExecutorService;
+
+    private Set<Consumer<QueueItem>> subscribers;
 
     @Override
     public Future<QueueItem> push(QueueItem queueItem)
     {
-        return executorService.submit(() -> queueItemRepository.insert(queueItem));
+        return pushExecutorService.submit(() -> queueItemRepository.insert(queueItem));
     }
 
     @Override
-    public Optional<QueueItem> poll()
+    public void registerSubscriber(Consumer<QueueItem> subscriber)
+    {
+        subscribers.add(subscriber);
+    }
+
+    /**
+     * Gets a result.
+     *
+     * @return a result
+     */
+    @Override
+    public Runnable get()
+    {
+        return new PollingTask();
+    }
+
+    protected Optional<QueueItem> poll()
     {
         Query query = new Query();
         query.limit(1);
@@ -56,15 +90,46 @@ public class DefaultQueueManagementServiceImpl implements QueueManagementService
     @Override
     public void destroy() throws Exception
     {
-        executorService.shutdown();
+        pushExecutorService.shutdown();
 
-        executorService.awaitTermination(10, TimeUnit.SECONDS);
+        if (isListenerPoolingEnabled && pollingExecutorService != null && !pollingExecutorService.isShutdown())
+        {
+            pollingExecutorService.shutdown();
+            pollingExecutorService.awaitTermination(10, TimeUnit.SECONDS);
+        }
+
+        pushExecutorService.awaitTermination(10, TimeUnit.SECONDS);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
+        subscribers = new HashSet<>();
         //TODO: Check usage of blocking queue to avoid OutOfMemory
-        executorService = Executors.newFixedThreadPool(threadNumber);
+        pushExecutorService = Executors.newFixedThreadPool(pushThreadNumber);
+
+        if (isListenerPoolingEnabled)
+        {
+            pollingExecutorService = Executors.newScheduledThreadPool(pollThreadNumber);
+            Stream.generate(this).limit(pollThreadNumber).forEach(queueListenerTask -> pollingExecutorService.scheduleWithFixedDelay(queueListenerTask, fixedDelay, fixedDelay, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    class PollingTask implements Runnable
+    {
+
+        /**
+         * Computes a result, or throws an exception if unable to do so.
+         *
+         * @return computed result
+         * @throws Exception
+         *         if unable to compute a result
+         */
+        @Override
+        public void run()
+        {
+            Optional<QueueItem> optionalQueueItem = poll();
+            optionalQueueItem.ifPresent(queueItem -> subscribers.parallelStream().forEach(queueItemConsumer -> queueItemConsumer.accept(queueItem)));
+        }
     }
 }

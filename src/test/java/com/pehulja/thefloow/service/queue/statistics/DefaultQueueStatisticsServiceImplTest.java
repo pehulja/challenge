@@ -1,4 +1,4 @@
-package com.pehulja.thefloow.service;
+package com.pehulja.thefloow.service.queue.statistics;
 
 import static com.pehulja.thefloow.service.queue.statistics.DefaultQueueStatisticsServiceImpl.QUEUE_STATISTICS_DOC_ID;
 
@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.pehulja.thefloow.AbstractTestWithMongo;
-import com.pehulja.thefloow.service.queue.statistics.DefaultQueueStatisticsServiceImpl;
 import com.pehulja.thefloow.storage.documents.QueueStatistics;
 import com.pehulja.thefloow.storage.repository.QueueStatisticsRepository;
 

@@ -37,7 +37,7 @@ public class CustomFileWordsStatisticsRepositoryImpl implements CustomFileWordsS
         return this.optimisticMerge(fileWordsStatistics, mergeOperation, 0);
     }
 
-    public FileWordsStatistics optimisticMerge(FileWordsStatistics fileWordsStatistics, BinaryOperator<FileWordsStatistics> mergeOperation, int attempt) throws UnableUpdateDocumentException
+    private FileWordsStatistics optimisticMerge(FileWordsStatistics fileWordsStatistics, BinaryOperator<FileWordsStatistics> mergeOperation, int attempt) throws UnableUpdateDocumentException
     {
         FileWordsStatistics existing = fileWordsStatisticsRepository.findOne(fileWordsStatistics.getFileId());
 
@@ -47,7 +47,7 @@ public class CustomFileWordsStatisticsRepositoryImpl implements CustomFileWordsS
         query.limit(1);
 
         Update update = new Update();
-        update.set("fileWordsStatistics", Optional.ofNullable(existing)
+        update.set("wordStatistics", Optional.ofNullable(existing)
                 .map(existingStatistics -> mergeOperation.apply(existingStatistics, fileWordsStatistics))
                 .orElse(fileWordsStatistics)
                 .getWordStatistics());
@@ -70,4 +70,5 @@ public class CustomFileWordsStatisticsRepositoryImpl implements CustomFileWordsS
             }
         }
     }
+
 }

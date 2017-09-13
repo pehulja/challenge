@@ -6,11 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Created by eyevpek on 2017-09-11.
  */
 @Data
+@ToString (callSuper = true, exclude = "id")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

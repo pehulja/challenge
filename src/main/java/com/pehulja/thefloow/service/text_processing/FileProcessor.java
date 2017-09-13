@@ -1,4 +1,4 @@
-package com.pehulja.thefloow.service.file_processing;
+package com.pehulja.thefloow.service.text_processing;
 
 import java.io.FileNotFoundException;
 
