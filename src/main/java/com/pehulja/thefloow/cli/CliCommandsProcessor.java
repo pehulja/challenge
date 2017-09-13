@@ -56,12 +56,12 @@ public class CliCommandsProcessor implements CommandMarker
         }
         catch (Exception ex)
         {
-            String errorMessage = String.format("Unable to import the file %s, reason: %s", file, ex.getMessage());
+            String errorMessage = String.format("Fail: unable to import the file %s, reason: %s", file, ex.getMessage());
             log.error(errorMessage, ex);
             return errorMessage;
         }
 
-        return String.format("File %s has been imported and chunks pushed to the Mongo queue, \n" +
+        return String.format("Success: file %s has been imported and chunks pushed to the Mongo queue, \n" +
                 "execute 'print-queue-wordStatistics' to see Mongo queue status", file);
     }
 }
