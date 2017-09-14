@@ -1,16 +1,21 @@
 package com.pehulja.thefloow.storage.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 
+import com.pehulja.thefloow.storage.documents.Word;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
 import com.pehulja.thefloow.exception.UnableUpdateDocumentException;
@@ -35,6 +40,25 @@ public class CustomFileWordsStatisticsRepositoryImpl implements CustomFileWordsS
     public FileWordsStatistics optimisticMerge(FileWordsStatistics fileWordsStatistics, BinaryOperator<FileWordsStatistics> mergeOperation) throws UnableUpdateDocumentException
     {
         return this.optimisticMerge(fileWordsStatistics, mergeOperation, 0);
+    }
+
+    @Override
+    public void optimisticMerge(FileWordsStatistics fileWordsStatistics) {
+        List<Pair<Query, Update>> wordsUpdate = fileWordsStatistics.getWordStatistics().entrySet().parallelStream()
+                .map(word ->
+                {
+                    Query query = new Query();
+                    query.addCriteria(Criteria.where("fileName").is(fileWordsStatistics.getFileName()));
+                    query.addCriteria(Criteria.where("fileId").is(fileWordsStatistics.getFileId()));
+
+                    Update update = new Update();
+                    update.inc("wordStatistics."+word.getKey(), word.getValue());
+
+                    return Pair.of(query, update);
+                }).collect(Collectors.toList());
+
+        BulkOperations ops = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, FileWordsStatistics.class);
+        ops.upsert(wordsUpdate).execute();
     }
 
     private FileWordsStatistics optimisticMerge(FileWordsStatistics fileWordsStatistics, BinaryOperator<FileWordsStatistics> mergeOperation, int attempt) throws UnableUpdateDocumentException

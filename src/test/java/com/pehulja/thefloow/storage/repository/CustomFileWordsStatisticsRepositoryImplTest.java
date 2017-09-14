@@ -2,7 +2,12 @@ package com.pehulja.thefloow.storage.repository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import org.assertj.core.api.Assertions;
@@ -59,6 +64,79 @@ public class CustomFileWordsStatisticsRepositoryImplTest implements Supplier<Fil
 
         Assertions.assertThat(updated.getVersion()).isEqualTo(2l);
         Assertions.assertThat(updated.getWordStatistics()).isEqualTo(expectedStatistics);
+    }
+
+    @Test
+    public void optimisticMergeExisting() throws Exception
+    {
+        FileWordsStatistics fileWordsStatistics = fileWordsStatisticsRepository.save(this.get());
+
+        fileWordsStatistics = fileWordsStatistics.toBuilder()
+                .wordStatistic("a", 1l)
+                .wordStatistic("b", 1l)
+                .build();
+
+        customFileWordsStatisticsRepository.optimisticMerge(fileWordsStatistics);
+
+        FileWordsStatistics expected = fileWordsStatistics.toBuilder()
+                .wordStatistic("a", 2l)
+                .wordStatistic("b", 2l)
+                .build();
+
+        Assertions.assertThat(fileWordsStatisticsRepository.findAll()).contains(expected);
+    }
+
+
+    @Test
+    public void optimisticMergeNew() throws Exception
+    {
+        FileWordsStatistics fileWordsStatistics = this.get();
+
+        customFileWordsStatisticsRepository.optimisticMerge(fileWordsStatistics);
+
+        FileWordsStatistics expected = fileWordsStatistics.toBuilder()
+                .wordStatistic("a", 1l)
+                .wordStatistic("b", 1l)
+                .build();
+
+        Assertions.assertThat(fileWordsStatisticsRepository.findAll()).contains(expected);
+    }
+
+
+    @Test
+    public void optimisticMergeBulk() throws Exception
+    {
+        String fileName = "a";
+        String fileId = "b";
+
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+        for(int i = 0; i < 700; i++){
+            executorService.submit(() -> {
+
+                FileWordsStatistics.FileWordsStatisticsBuilder builder = FileWordsStatistics.builder();
+                builder.fileId(fileId).fileName(fileName);
+                for(int j = 0; j < 10000; j++){
+                    builder.wordStatistic(String.valueOf(j), 1l);
+                }
+                customFileWordsStatisticsRepository.optimisticMerge(builder.build());
+                System.err.println("INTHEMETROD");
+
+            });
+        }
+
+        executorService.shutdown();
+        executorService.awaitTermination(10, TimeUnit.MINUTES);
+
+        FileWordsStatistics.FileWordsStatisticsBuilder builder = FileWordsStatistics.builder();
+        builder.fileId(fileId).fileName(fileName);
+        for(int j = 0; j < 10000; j++){
+            builder.wordStatistic(String.valueOf(j), 10l);
+        }
+
+        FileWordsStatistics expected = builder.build();
+
+        Assertions.assertThat(fileWordsStatisticsRepository.findAll()).contains(expected);
     }
 
     @Override

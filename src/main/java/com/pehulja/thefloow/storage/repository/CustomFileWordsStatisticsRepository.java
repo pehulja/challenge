@@ -11,4 +11,6 @@ import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
 public interface CustomFileWordsStatisticsRepository
 {
     FileWordsStatistics optimisticMerge(FileWordsStatistics fileWordsStatistics, BinaryOperator<FileWordsStatistics> mergeOperation) throws UnableUpdateDocumentException;
+    void optimisticMerge(FileWordsStatistics fileWordsStatistics);
+
 }

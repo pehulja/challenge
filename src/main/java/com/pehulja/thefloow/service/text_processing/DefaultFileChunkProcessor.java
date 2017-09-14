@@ -8,12 +8,12 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.pehulja.thefloow.exception.UnableUpdateDocumentException;
 import com.pehulja.thefloow.service.queue.QueueManagementService;
 import com.pehulja.thefloow.service.queue.statistics.QueueStatisticsService;
 import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
 import com.pehulja.thefloow.storage.documents.QueueItem;
 import com.pehulja.thefloow.storage.repository.CustomFileWordsStatisticsRepository;
+import com.pehulja.thefloow.storage.repository.CustomWordRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +36,9 @@ public class DefaultFileChunkProcessor implements FileChunkProcessor, Initializi
     @Autowired
     private QueueManagementService queueManagementService;
 
+    @Autowired
+    private CustomWordRepository customWordRepository;
+
     /**
      * Performs this operation on the given argument.
      *
@@ -45,23 +48,15 @@ public class DefaultFileChunkProcessor implements FileChunkProcessor, Initializi
     @Override
     public void accept(QueueItem queueItem)
     {
-        try
-        {
-            FileWordsStatistics fileWordsStatistics = FileWordsStatistics.builder()
-                    .fileId(queueItem.getFileChunk().getFileId())
-                    .fileName(queueItem.getFileChunk().getFileName())
-                    .wordStatistics(uniqueWordsUsageStatisticsFunction.apply(queueItem.getFileChunk().getContent()))
-                    .build();
+        FileWordsStatistics fileWordsStatistics = FileWordsStatistics.builder()
+                .fileId(queueItem.getFileChunk().getFileId())
+                .fileName(queueItem.getFileChunk().getFileName())
+                .wordStatistics(uniqueWordsUsageStatisticsFunction.apply(queueItem.getFileChunk().getContent()))
+                .build();
 
-            customFileWordsStatisticsRepository.optimisticMerge(fileWordsStatistics, mergeStatisticsFunction);
+        customWordRepository.apply(fileWordsStatistics);
 
-            queueStatisticsService.incrementSuccessfullyProcessed();
-        }
-        catch (UnableUpdateDocumentException ex)
-        {
-            queueStatisticsService.incrementFailedToProcess();
-            log.error("Unable to process queue item ", ex);
-        }
+        queueStatisticsService.incrementSuccessfullyProcessed();
     }
 
     @Override
