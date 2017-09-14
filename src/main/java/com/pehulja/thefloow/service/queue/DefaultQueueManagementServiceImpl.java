@@ -24,9 +24,12 @@ import com.pehulja.thefloow.service.queue.statistics.QueueStatisticsService;
 import com.pehulja.thefloow.storage.documents.QueueItem;
 import com.pehulja.thefloow.storage.repository.QueueItemRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Created by eyevpek on 2017-09-11.
  */
+@Slf4j
 @Service
 public class DefaultQueueManagementServiceImpl implements QueueManagementService, InitializingBean, DisposableBean, Supplier<Runnable>
 {
@@ -111,7 +114,7 @@ public class DefaultQueueManagementServiceImpl implements QueueManagementService
         if (isListenerPoolingEnabled)
         {
             pollingExecutorService = Executors.newScheduledThreadPool(pollThreadNumber);
-            Stream.generate(this).limit(pollThreadNumber).forEach(queueListenerTask -> pollingExecutorService.scheduleWithFixedDelay(queueListenerTask, fixedDelay, fixedDelay, TimeUnit.MILLISECONDS));
+            Stream.generate(this).limit(pollThreadNumber).forEach(queueListenerTask -> pollingExecutorService.scheduleAtFixedRate(queueListenerTask, fixedDelay, fixedDelay, TimeUnit.MILLISECONDS));
         }
     }
 
@@ -129,6 +132,7 @@ public class DefaultQueueManagementServiceImpl implements QueueManagementService
         public void run()
         {
             Optional<QueueItem> optionalQueueItem = poll();
+            //log.info(String.format("Thread %d Polled %s", Thread.currentThread().getId(), optionalQueueItem));
             optionalQueueItem.ifPresent(queueItem -> subscribers.parallelStream().forEach(queueItemConsumer -> queueItemConsumer.accept(queueItem)));
         }
     }

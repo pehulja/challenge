@@ -35,7 +35,7 @@ public class CliCommandsProcessor implements CommandMarker
         return queueStatisticsService.getQueueStatistics().toString();
     }
 
-    @CliCommand (value = {"print-file-statistics"}, help = "use --file-name [file-name] to get wordStatistics per specific file name imported")
+    @CliCommand (value = {"print-file-statistics"}, help = "use --file-name [file-name] to get statistics per specific file name imported")
     public String getFileWordsStatistics(@CliOption (key = {"file-name"}, mandatory = true) String fileName)
     {
         return metricService.byFileName(fileName).map(WordsMetricHolder::toString).orElse("Nothing to show");
@@ -62,6 +62,6 @@ public class CliCommandsProcessor implements CommandMarker
         }
 
         return String.format("Success: file %s has been imported and chunks pushed to the Mongo queue, \n" +
-                "execute 'print-queue-wordStatistics' to see Mongo queue status", file);
+                "execute 'print-queue-statistics' to see Mongo queue status", file);
     }
 }

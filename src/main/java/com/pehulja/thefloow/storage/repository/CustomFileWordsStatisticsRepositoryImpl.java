@@ -40,7 +40,6 @@ public class CustomFileWordsStatisticsRepositoryImpl implements CustomFileWordsS
     private FileWordsStatistics optimisticMerge(FileWordsStatistics fileWordsStatistics, BinaryOperator<FileWordsStatistics> mergeOperation, int attempt) throws UnableUpdateDocumentException
     {
         FileWordsStatistics existing = fileWordsStatisticsRepository.findOne(fileWordsStatistics.getFileId());
-
         Query query = new Query();
         query.addCriteria(Criteria.where("fileId").is(fileWordsStatistics.getFileId()));
         query.addCriteria(Criteria.where("version").is(Optional.ofNullable(existing).map(FileWordsStatistics::getVersion).orElse(1l)));
@@ -66,7 +65,7 @@ public class CustomFileWordsStatisticsRepositoryImpl implements CustomFileWordsS
             }
             else
             {
-                throw new UnableUpdateDocumentException(String.format("Unable to update document: %s", fileWordsStatistics), ex);
+                throw new UnableUpdateDocumentException(String.format("Unable to update document: %s", fileWordsStatistics.getFileName()), ex);
             }
         }
     }
