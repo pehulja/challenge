@@ -12,6 +12,7 @@ import com.pehulja.thefloow.service.queue.QueueManagementService;
 import com.pehulja.thefloow.service.queue.statistics.QueueStatisticsService;
 import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
 import com.pehulja.thefloow.storage.documents.QueueItem;
+import com.pehulja.thefloow.storage.repository.CustomBucketRepository;
 import com.pehulja.thefloow.storage.repository.CustomFileWordsStatisticsRepository;
 import com.pehulja.thefloow.storage.repository.CustomWordRepository;
 
@@ -39,6 +40,8 @@ public class DefaultFileChunkProcessor implements FileChunkProcessor, Initializi
     @Autowired
     private CustomWordRepository customWordRepository;
 
+    @Autowired
+    private CustomBucketRepository customBucketRepository;
     /**
      * Performs this operation on the given argument.
      *
@@ -55,6 +58,7 @@ public class DefaultFileChunkProcessor implements FileChunkProcessor, Initializi
                 .build();
 
         customWordRepository.apply(fileWordsStatistics);
+        //customBucketRepository.process(fileWordsStatistics);
 
         queueStatisticsService.incrementSuccessfullyProcessed();
     }

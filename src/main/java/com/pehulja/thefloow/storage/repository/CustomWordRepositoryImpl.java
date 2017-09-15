@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
+import com.google.common.collect.Lists;
 import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
 import com.pehulja.thefloow.storage.documents.Word;
 
@@ -32,8 +33,6 @@ public class CustomWordRepositoryImpl implements CustomWordRepository
                 {
                     Query query = new Query();
                     query.addCriteria(Criteria.where("word").is(word.getKey()));
-                    query.addCriteria(Criteria.where("fileName").is(fileWordsStatistics.getFileName()));
-                    query.addCriteria(Criteria.where("fileId").is(fileWordsStatistics.getFileId()));
 
                     Update update = new Update();
                     update.inc("counter", word.getValue());
@@ -41,7 +40,7 @@ public class CustomWordRepositoryImpl implements CustomWordRepository
                     return Pair.of(query, update);
                 }).collect(Collectors.toList());
 
-        BulkOperations ops = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Word.class);
-        ops.upsert(wordsUpdate).execute();
+        List<List<Pair<Query, Update>>> partitions = Lists.partition(wordsUpdate, 500);
+        partitions.forEach(partition -> mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Word.class).upsert(partition).execute());
     }
 }

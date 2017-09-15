@@ -114,7 +114,7 @@ public class DefaultQueueManagementServiceImpl implements QueueManagementService
         if (isListenerPoolingEnabled)
         {
             pollingExecutorService = Executors.newScheduledThreadPool(pollThreadNumber);
-            Stream.generate(this).limit(pollThreadNumber).forEach(queueListenerTask -> pollingExecutorService.scheduleAtFixedRate(queueListenerTask, fixedDelay, fixedDelay, TimeUnit.MILLISECONDS));
+            Stream.generate(this).limit(pollThreadNumber).forEach(queueListenerTask -> pollingExecutorService.scheduleWithFixedDelay(queueListenerTask, fixedDelay, fixedDelay, TimeUnit.MILLISECONDS));
         }
     }
 

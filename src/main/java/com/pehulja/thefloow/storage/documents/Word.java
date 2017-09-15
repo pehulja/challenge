@@ -20,9 +20,6 @@ import lombok.NoArgsConstructor;
 public class Word
 {
     @Id
-    private String id;
-
-    @Indexed
     private String word;
 
     private Long counter;

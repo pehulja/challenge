@@ -70,7 +70,7 @@ public class CustomWordRepositoryImplTest extends AbstractTestWithMongo
         for (long i = 0; i < 1000; i++)
         {
             input.put(String.valueOf(i), i);
-            expected.add(Word.builder().fileId(FILE_ID).fileName(FILE_NAME).word(String.valueOf(i)).counter(i).build());
+            expected.add(Word.builder().word(String.valueOf(i)).counter(i).build());
         }
 
         FileWordsStatistics inputFileWordsStatistics = FileWordsStatistics.builder()
