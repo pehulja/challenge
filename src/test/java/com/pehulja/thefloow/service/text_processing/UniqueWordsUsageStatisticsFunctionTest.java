@@ -9,8 +9,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
-import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
-
 /**
  * Created by baske on 12.09.2017.
  */
@@ -19,7 +17,7 @@ public class UniqueWordsUsageStatisticsFunctionTest
     private UniqueWordsUsageStatisticsFunction function;
 
     @Captor
-    private ArgumentCaptor<FileWordsStatistics> argumentCaptor;
+    private ArgumentCaptor<Map<String, Long>> argumentCaptor;
 
     @Before
     public void setup()

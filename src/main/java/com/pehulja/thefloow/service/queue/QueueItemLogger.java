@@ -31,7 +31,7 @@ public class QueueItemLogger implements Consumer<QueueItem>, InitializingBean
     @Override
     public void accept(QueueItem queueItem)
     {
-        log.info(String.format(MESSAGE_TEMPLATE, queueItem.toString()));
+        log.debug(String.format(MESSAGE_TEMPLATE, queueItem.toString()));
     }
 
     @Override

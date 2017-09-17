@@ -1,16 +1,16 @@
 package com.pehulja.thefloow.service.metric;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.pehulja.thefloow.metric.MetricType;
+import com.pehulja.thefloow.metric.WordsMetric;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.pehulja.thefloow.metric.Metric;
-import com.pehulja.thefloow.metric.WordsMetricHolder;
-import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
-import com.pehulja.thefloow.storage.repository.FileWordsStatisticsRepository;
+import com.pehulja.thefloow.metric.MetricProcessor;
 
 import lombok.Setter;
 
@@ -22,48 +22,13 @@ import lombok.Setter;
 public class DefaultMetricsServiceImpl implements MetricsService
 {
     @Autowired
-    private Set<Metric> metrics;
-
-    @Autowired
-    private FileWordsStatisticsRepository fileWordsStatisticsRepository;
+    private Set<MetricProcessor> metricProcessors;
 
     @Override
-    public WordsMetricHolder collectMetrics(List<FileWordsStatistics> statistics)
-    {
-        WordsMetricHolder.WordsMetricHolderBuilder builder = WordsMetricHolder.builder();
-        for (Metric metric : metrics)
-        {
-            builder.metric(metric.getName(), metric.apply(statistics));
-        }
-
-        return builder.build();
-    }
-
-    @Override
-    public Optional<WordsMetricHolder> byFileName(String fileName)
-    {
-        List<FileWordsStatistics> statistics = fileWordsStatisticsRepository.findByFileName(fileName);
-        if (statistics == null || statistics.isEmpty())
-        {
-            return Optional.empty();
-        }
-        else
-        {
-            return Optional.of(this.collectMetrics(statistics));
-        }
-    }
-
-    @Override
-    public Optional<WordsMetricHolder> overall()
-    {
-        List<FileWordsStatistics> statistics = fileWordsStatisticsRepository.findAll();
-        if (statistics == null || statistics.isEmpty())
-        {
-            return Optional.empty();
-        }
-        else
-        {
-            return Optional.of(this.collectMetrics(statistics));
-        }
+    public Map<MetricType, Optional<WordsMetric>> get() {
+        return metricProcessors
+                .parallelStream()
+                .collect(Collectors.toMap(MetricProcessor::getMetricType, metric -> metric.get()));
     }
 }
+

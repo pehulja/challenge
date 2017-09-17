@@ -8,19 +8,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Created by eyevpek on 2017-09-11.
  */
+@Document
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class FileChunk
 {
-    @Indexed (unique = true)
-    private String fileId;
-
     @Indexed
     private String fileName;
 
@@ -28,15 +27,14 @@ public class FileChunk
 
     private String content;
 
-    @Override
+    /*@Override
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("FileChunk{");
-        sb.append("fileId='").append(fileId).append('\'');
         sb.append(", fileName='").append(fileName).append('\'');
         sb.append(", chunkId=").append(chunkId);
         sb.append(", content size='").append(Optional.ofNullable(content).map(String::length).orElse(0)).append('\'');
         sb.append('}');
         return sb.toString();
-    }
+    }*/
 }

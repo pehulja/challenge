@@ -1,118 +1,55 @@
 package com.pehulja.thefloow.service.metric;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
+import com.pehulja.thefloow.metric.*;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.pehulja.thefloow.metric.LeastFrequentlyUsedWordMetric;
-import com.pehulja.thefloow.metric.Metric;
-import com.pehulja.thefloow.metric.MostFrequentlyUsedWordMetric;
-import com.pehulja.thefloow.metric.WordsMetricHolder;
-import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
-import com.pehulja.thefloow.storage.repository.FileWordsStatisticsRepository;
+import java.util.HashMap;
+import java.util.Map;
+
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 /**
- * Created by eyevpek on 2017-09-12.
+ * Created by baske on 18.09.2017.
  */
-@RunWith (SpringRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest
-public class DefaultMetricsServiceImplTest
-{
-    public static final String FILE_NAME = "fileName";
-    public static final String DIFFERENT_FILE_NAME = "differentFileName";
+public class DefaultMetricsServiceImplTest {
 
-    @InjectMocks
-    @Spy
-    private DefaultMetricsServiceImpl defaultMetricsServiceSpy;
+    @SpyBean
+    private LeastFrequentlyUsedWordMetricProcessor leastFrequentlyUsedWordMetricProcessor;
 
-    private Set<Metric> metricsMock;
+    @SpyBean
+    private MostFrequentlyUsedWordMetricProcessor mostFrequentlyUsedWordMetricProcessor;
 
-    @Spy
-    private MostFrequentlyUsedWordMetric mostFrequentlyUsedWordMetric;
-
-    @Spy
-    private LeastFrequentlyUsedWordMetric leastFrequentlyUsedWordMetric;
-
-    @Mock
-    private WordsMetricHolder.WordsMetric mostFrequentlyUsedWordMetricTuple;
-
-    @Mock
-    private WordsMetricHolder.WordsMetric leastFrequentlyUsedWordMetricTuple;
-
-    @Mock
-    private WordsMetricHolder wordsMetricsHolder;
-
-    @Mock
-    private FileWordsStatisticsRepository fileWordsStatisticsRepositoryMock;
-
-    @Mock
-    private FileWordsStatistics a;
-
-    @Mock
-    private FileWordsStatistics b;
-
-    @Mock
-    private FileWordsStatistics c;
+    @Autowired
+    private DefaultMetricsServiceImpl defaultMetricsService;
 
     @Before
-    public void setupMocks()
-    {
-        Mockito.when(leastFrequentlyUsedWordMetric.apply(Mockito.anyList())).thenReturn(leastFrequentlyUsedWordMetricTuple);
-        Mockito.when(mostFrequentlyUsedWordMetric.apply(Mockito.anyList())).thenReturn(mostFrequentlyUsedWordMetricTuple);
-        metricsMock = new HashSet<>(Arrays.asList(mostFrequentlyUsedWordMetric, leastFrequentlyUsedWordMetric));
-        Mockito.when(fileWordsStatisticsRepositoryMock.findByFileName(FILE_NAME)).thenReturn(Arrays.asList(a, b));
-        Mockito.when(fileWordsStatisticsRepositoryMock.findByFileName(DIFFERENT_FILE_NAME)).thenReturn(Arrays.asList(c));
-        Mockito.when(fileWordsStatisticsRepositoryMock.findAll()).thenReturn(Arrays.asList(a, b, c));
+    public void setup(){
+        Mockito.when(mostFrequentlyUsedWordMetricProcessor.get()).thenReturn(Optional.empty());
+        Mockito.when(leastFrequentlyUsedWordMetricProcessor.get()).thenReturn(Optional.of(WordsMetric.builder().build()));
 
-        defaultMetricsServiceSpy.setMetrics(metricsMock);
     }
-
     @Test
-    public void collectMetrics() throws Exception
-    {
-        WordsMetricHolder expected = WordsMetricHolder.builder()
-                .metric(LeastFrequentlyUsedWordMetric.NAME, leastFrequentlyUsedWordMetricTuple)
-                .metric(MostFrequentlyUsedWordMetric.NAME, mostFrequentlyUsedWordMetricTuple)
-                .build();
+    public void get() throws Exception {
+        Map<MetricType, Optional<WordsMetric>> expected = new HashMap<>();
+        expected.put(MetricType.LEAST_FREQUENTLY_USED, Optional.of(WordsMetric.builder().build()));
+        expected.put(MetricType.MOST_FREQUENTLY_USED, Optional.empty());
 
-        Assertions.assertThat(defaultMetricsServiceSpy.collectMetrics(Collections.emptyList())).isEqualTo(expected);
-    }
-
-    @Test
-    public void byFileName() throws Exception
-    {
-        Mockito.doReturn(wordsMetricsHolder).when(defaultMetricsServiceSpy).collectMetrics(Mockito.eq(Arrays.asList(a, b)));
-        Optional<WordsMetricHolder> actual = defaultMetricsServiceSpy.byFileName(FILE_NAME);
-        Assertions.assertThat(actual).isEqualTo(Optional.of(wordsMetricsHolder));
-    }
-
-    @Test
-    public void byFileNameNoMatched() throws Exception
-    {
-        Mockito.doReturn(wordsMetricsHolder).when(defaultMetricsServiceSpy).collectMetrics(Mockito.eq(Arrays.asList(a, b)));
-        Optional<WordsMetricHolder> actual = defaultMetricsServiceSpy.byFileName("someOtherFileName");
-        Assertions.assertThat(actual).isEqualTo(Optional.empty());
-    }
-
-    @Test
-    public void overall() throws Exception
-    {
-        Mockito.doReturn(wordsMetricsHolder).when(defaultMetricsServiceSpy).collectMetrics(Mockito.eq(Arrays.asList(a, b, c)));
-        Optional<WordsMetricHolder> actual = defaultMetricsServiceSpy.overall();
-        Assertions.assertThat(actual).isEqualTo(Optional.of(wordsMetricsHolder));
+        Assertions.assertThat(defaultMetricsService.get()).isEqualTo(expected);
     }
 
 }

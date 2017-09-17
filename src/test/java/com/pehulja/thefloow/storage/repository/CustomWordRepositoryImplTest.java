@@ -1,86 +1,138 @@
 package com.pehulja.thefloow.storage.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.pehulja.thefloow.AbstractTestWithMongo;
+import com.pehulja.thefloow.storage.documents.Word;
 import org.assertj.core.api.Assertions;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.pehulja.thefloow.AbstractTestWithMongo;
-import com.pehulja.thefloow.storage.documents.FileWordsStatistics;
-import com.pehulja.thefloow.storage.documents.Word;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.*;
 
 /**
- * Created by eyevpek on 2017-09-14.
+ * Created by baske on 17.09.2017.
  */
-@RunWith (SpringRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest
-public class CustomWordRepositoryImplTest extends AbstractTestWithMongo
-{
-    public static final String FILE_NAME = "fileName";
-    public static final String FILE_ID = "fileId";
+@ActiveProfiles("test")
+
+public class CustomWordRepositoryImplTest extends AbstractTestWithMongo{
+    @Autowired
+    private WordRepository wordRepository;
 
     @Autowired
-    public CustomWordRepositoryImpl customWordRepository;
+    private CustomWordRepository customWordRepository;
 
-    @Autowired
-    public WordRepository wordRepository;
+    @Before
+    public void backloadData(){
+        List<Word> words = new ArrayList<>();
+        words.add(Word.builder().word("a").counter(1l).build());
+        words.add(Word.builder().word("n").counter(1l).build());
+        words.add(Word.builder().word("b").counter(2l).build());
+        words.add(Word.builder().word("c").counter(3l).build());
+        wordRepository.save(words);
+    }
 
     @Test
-    public void applyUpdateExisting() throws Exception
-    {
-        Map<String, Long> input = new HashMap<>();
-        List<Word> expected = new ArrayList<>();
-        List<Word> existing = new ArrayList<>();
+    public void merge() throws Exception {
+        List<Word> input = new ArrayList<>();
+        input.add(Word.builder().word("a").counter(1l).build());
+        input.add(Word.builder().word("b").counter(2l).build());
+        input.add(Word.builder().word("c").counter(3l).build());
+        input.add(Word.builder().word("d").counter(4l).build());
 
-        for (long i = 0; i < 1000; i++)
-        {
-            input.put(String.valueOf(i), i);
-            expected.add(Word.builder().fileId(FILE_ID).fileName(FILE_NAME).word(String.valueOf(i)).counter(i * 2).build());
-            existing.add(Word.builder().fileId(FILE_ID).fileName(FILE_NAME).word(String.valueOf(i)).counter(i).build());
+        List<Word> expected = new ArrayList<>();
+        expected.add(Word.builder().word("a").counter(2l).build());
+        expected.add(Word.builder().word("b").counter(4l).build());
+        expected.add(Word.builder().word("c").counter(6l).build());
+        expected.add(Word.builder().word("d").counter(4l).build());
+        expected.add(Word.builder().word("n").counter(1l).build());
+
+
+        customWordRepository.merge(input);
+        List<Word> actual = wordRepository.findAll();
+        Assertions.assertThat(actual).containsOnlyElementsOf(expected);
+    }
+
+    @Test
+    public void mergeMultithread() throws Exception {
+        ExecutorService scheduledExecutorService = Executors.newFixedThreadPool(5);
+        for(int i = 0; i < 10; i++){
+            scheduledExecutorService.submit(() -> {
+                List<Word> input = new ArrayList<>();
+                input.add(Word.builder().word("a").counter(1l).build());
+                input.add(Word.builder().word("e").counter(2l).build());
+                input.add(Word.builder().word("f").counter(3l).build());
+                input.add(Word.builder().word("g").counter(1l).build());
+
+                customWordRepository.merge(input);
+            });
         }
 
-        FileWordsStatistics inputFileWordsStatistics = FileWordsStatistics.builder()
-                .wordStatistics(input)
-                .fileId(FILE_ID)
-                .fileName(FILE_NAME).build();
+        scheduledExecutorService.shutdown();
+        scheduledExecutorService.awaitTermination(1, TimeUnit.MINUTES);
 
-        wordRepository.save(existing);
+        List<Word> expected = new ArrayList<>();
+        expected.add(Word.builder().word("a").counter(11l).build());
+        expected.add(Word.builder().word("b").counter(2l).build());
+        expected.add(Word.builder().word("c").counter(3l).build());
+        expected.add(Word.builder().word("e").counter(20l).build());
+        expected.add(Word.builder().word("f").counter(30l).build());
+        expected.add(Word.builder().word("g").counter(10l).build());
+        expected.add(Word.builder().word("n").counter(1l).build());
 
-        customWordRepository.apply(inputFileWordsStatistics);
 
         List<Word> actual = wordRepository.findAll();
+        Assertions.assertThat(actual).containsOnlyElementsOf(expected);
+    }
+
+    @Test
+    public void findMax() throws Exception {
+        Optional<Long> expected = Optional.of(3l);
+        Optional<Long> actual = customWordRepository.findMax();
         Assertions.assertThat(actual).isEqualTo(expected);
     }
 
     @Test
-    public void applyInsertOnEmpty() throws Exception
-    {
-        Map<String, Long> input = new HashMap<>();
-        Set<Word> expected = new HashSet<>();
+    public void findEmpty() throws Exception {
+        wordRepository.deleteAll();
 
-        for (long i = 0; i < 1000; i++)
-        {
-            input.put(String.valueOf(i), i);
-            expected.add(Word.builder().word(String.valueOf(i)).counter(i).build());
-        }
+        Optional<Long> expected = Optional.empty();
+        Optional<Long> actual = customWordRepository.findMin();
+        Assertions.assertThat(actual).isEqualTo(expected);
+    }
 
-        FileWordsStatistics inputFileWordsStatistics = FileWordsStatistics.builder()
-                .wordStatistics(input)
-                .fileId(FILE_ID)
-                .fileName(FILE_NAME).build();
+    @Test
+    public void findMin() throws Exception {
+        Optional<Long> expected = Optional.of(1l);
+        Optional<Long> actual = customWordRepository.findMin();
+        Assertions.assertThat(actual).isEqualTo(expected);
+    }
 
-        customWordRepository.apply(inputFileWordsStatistics);
+    @Test
+    public void findWordsByCountSingle() throws Exception {
+        Set<String> expected = new HashSet<>();
+        expected.add("c");
+        Set<String> actual = customWordRepository.findWordsByCount(3l);
+        Assertions.assertThat(actual).containsOnlyElementsOf(expected);
+    }
 
-        Set<Word> actual = new HashSet<>(wordRepository.findAll());
-        Assertions.assertThat(actual).containsAll(expected);
+    @Test
+    public void findWordsByCountMultiple() throws Exception {
+        Set<String> expected = new HashSet<>();
+        expected.add("a");
+        expected.add("n");
+        Set<String> actual = customWordRepository.findWordsByCount(1l);
+        Assertions.assertThat(actual).containsOnlyElementsOf(expected);
     }
 }

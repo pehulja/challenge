@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.pehulja.thefloow.storage.repository.CustomQueueItemRepository;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +41,10 @@ public class DefaultQueueManagementServiceImpl implements QueueManagementService
     private Integer pushThreadNumber;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private QueueStatisticsService queueStatisticsService;
 
     @Autowired
-    private QueueStatisticsService queueStatisticsService;
+    private CustomQueueItemRepository customQueueItemRepository;
 
     @Value ("${queue.listener.delay}")
     private Integer fixedDelay;
@@ -82,26 +83,22 @@ public class DefaultQueueManagementServiceImpl implements QueueManagementService
         return new PollingTask();
     }
 
-    protected Optional<QueueItem> poll()
-    {
-        Query query = new Query();
-        query.limit(1);
-
-        return Optional.ofNullable(mongoTemplate.findAndRemove(query, QueueItem.class));
-    }
-
     @Override
     public void destroy() throws Exception
     {
         pushExecutorService.shutdown();
-
-        if (isListenerPoolingEnabled && pollingExecutorService != null && !pollingExecutorService.isShutdown())
-        {
-            pollingExecutorService.shutdown();
-            pollingExecutorService.awaitTermination(10, TimeUnit.SECONDS);
+        if(!pushExecutorService.awaitTermination(1, TimeUnit.MINUTES)){
+            pushExecutorService.shutdownNow();
         }
 
-        pushExecutorService.awaitTermination(10, TimeUnit.SECONDS);
+        if (isListenerPoolingEnabled && pollingExecutorService != null)
+        {
+            pollingExecutorService.shutdown();
+
+            if(!pollingExecutorService.awaitTermination(1, TimeUnit.MINUTES)){
+                pollingExecutorService.shutdownNow();
+            }
+        }
     }
 
     @Override
@@ -131,7 +128,7 @@ public class DefaultQueueManagementServiceImpl implements QueueManagementService
         @Override
         public void run()
         {
-            Optional<QueueItem> optionalQueueItem = poll();
+            Optional<QueueItem> optionalQueueItem = customQueueItemRepository.poll();
             //log.info(String.format("Thread %d Polled %s", Thread.currentThread().getId(), optionalQueueItem));
             optionalQueueItem.ifPresent(queueItem -> subscribers.parallelStream().forEach(queueItemConsumer -> queueItemConsumer.accept(queueItem)));
         }

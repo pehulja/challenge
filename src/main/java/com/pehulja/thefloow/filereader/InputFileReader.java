@@ -1,6 +1,7 @@
 package com.pehulja.thefloow.filereader;
 
 import java.nio.file.Path;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 import com.pehulja.thefloow.storage.documents.FileChunk;
@@ -10,5 +11,5 @@ import com.pehulja.thefloow.storage.documents.FileChunk;
  */
 public interface InputFileReader
 {
-    void chunksProcessor(Path file, Consumer<FileChunk> fileChunkConsumer) throws Exception;
+    Future<?> chunksProcessor(Path file, Consumer<FileChunk> fileChunkConsumer) throws Exception;
 }

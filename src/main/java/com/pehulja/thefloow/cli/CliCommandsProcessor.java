@@ -1,17 +1,21 @@
 package com.pehulja.thefloow.cli;
 
+import com.pehulja.thefloow.metric.MetricType;
+import com.pehulja.thefloow.metric.WordsMetric;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
+import java.util.Map;
 
-import com.pehulja.thefloow.metric.WordsMetricHolder;
 import com.pehulja.thefloow.service.metric.MetricsService;
 import com.pehulja.thefloow.service.queue.statistics.QueueStatisticsService;
 import com.pehulja.thefloow.service.text_processing.FileProcessor;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 /**
  * Created by eyevpek on 2017-09-12.
@@ -20,6 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CliCommandsProcessor implements CommandMarker
 {
+    private static final String METRIC_FORMAT_OUTPUT = "Metric '%s': words: [%s], value %d";
+    private static final String METRIC_CANT_BE_CALCULATED = "Metric '%s' not applicable or can't be calculated";
+
     @Autowired
     private QueueStatisticsService queueStatisticsService;
 
@@ -35,16 +42,19 @@ public class CliCommandsProcessor implements CommandMarker
         return queueStatisticsService.getQueueStatistics().toString();
     }
 
-    @CliCommand (value = {"print-file-statistics"}, help = "use --file-name [file-name] to get statistics per specific file name imported")
-    public String getFileWordsStatistics(@CliOption (key = {"file-name"}, mandatory = true) String fileName)
-    {
-        return metricService.byFileName(fileName).map(WordsMetricHolder::toString).orElse("Nothing to show");
-    }
-
-    @CliCommand (value = {"print-overall-statistics"})
+    @CliCommand (value = {"print-word-statistics"})
     public String getOverallStatistics()
     {
-        return metricService.overall().map(WordsMetricHolder::toString).orElse("Nothing to show");
+        StringBuilder result = new StringBuilder();
+        Map<MetricType, Optional<WordsMetric>> metrics = metricService.get();
+
+        for (Map.Entry<MetricType, Optional<WordsMetric>> metric : metrics.entrySet()){
+            result.append(metric.getValue()
+                .map(words -> String.format(METRIC_FORMAT_OUTPUT, metric.getKey().name(), words.getWords(), words.getUsageCounter()))
+                .orElse(String.format(METRIC_CANT_BE_CALCULATED, metric.getKey())));
+            result.append('\n');
+        }
+        return result.toString();
     }
 
     @CliCommand (value = {"import"}, help = "use --file [path to local file] to process specific file")
@@ -61,7 +71,7 @@ public class CliCommandsProcessor implements CommandMarker
             return errorMessage;
         }
 
-        return String.format("Success: file %s has been imported and chunks pushed to the Mongo queue, \n" +
+        return String.format("Success: processing of file %s has been started in background and chunks will be pushed to the Mongo queue, \n" +
                 "execute 'print-queue-statistics' to see Mongo queue status", file);
     }
 }

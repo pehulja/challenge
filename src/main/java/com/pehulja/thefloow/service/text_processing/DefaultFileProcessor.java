@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.pehulja.thefloow.exception.UnableProcessFileException;
+import com.pehulja.thefloow.exception.UnableProcessChunkException;
 import com.pehulja.thefloow.filereader.InputFileReader;
 import com.pehulja.thefloow.service.queue.QueueManagementService;
 import com.pehulja.thefloow.service.queue.statistics.QueueStatisticsService;
@@ -30,12 +30,12 @@ public class DefaultFileProcessor implements FileProcessor
     private QueueStatisticsService queueStatisticsService;
 
     @Override
-    public void processFile(String filePath) throws FileNotFoundException, UnableProcessFileException
+    public void processFile(String filePath) throws FileNotFoundException, UnableProcessChunkException
     {
         Path path = Paths.get(filePath);
         if (Files.notExists(path))
         {
-            throw new FileNotFoundException(String.format("File %s doesn't exists or can't be read by application"));
+            throw new FileNotFoundException(String.format("File %s doesn't exists or can't be read by application", filePath));
         }
 
         try
@@ -48,7 +48,7 @@ public class DefaultFileProcessor implements FileProcessor
         }
         catch (Exception ex)
         {
-            throw new UnableProcessFileException(String.format("Unable to read file %s: cause %s", filePath, ex.getMessage()), ex);
+            throw new UnableProcessChunkException(String.format("Unable to read file %s: cause %s", filePath, ex.getMessage()), ex);
         }
     }
 }

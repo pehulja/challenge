@@ -3,7 +3,7 @@ package com.pehulja.thefloow.exception;
 /**
  * Created by eyevpek on 2017-09-12.
  */
-public class UnableProcessFileException extends Exception
+public class UnableProcessChunkException extends Exception
 {
     /**
      * Constructs a new exception with the specified detail message and
@@ -18,7 +18,7 @@ public class UnableProcessFileException extends Exception
      *         or unknown.)
      * @since 1.4
      */
-    public UnableProcessFileException(String message, Throwable cause)
+    public UnableProcessChunkException(String message, Throwable cause)
     {
         super(message, cause);
     }
