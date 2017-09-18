@@ -1,12 +1,9 @@
 package com.pehulja.thefloow.filereader;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -29,13 +26,15 @@ import com.pehulja.thefloow.storage.documents.FileChunk;
 @Service
 public class CharacterInputFileReader implements InputFileReader, InitializingBean, DisposableBean
 {
+    public static final int CHARACTER_NOT_FOUND_MARKER = -1;
     @Autowired
     private ChunkSplitPolicy chunkSplitPolicy;
 
     @Value ("${chunk.max-size}")
     private Long maxChunkSize;
 
-    private String [] WORDS_SEPARATOR = {" ", "\r\n"};
+    private static final char UNDESCORE = '_';
+    private static final char SINGLE_QUOTE = '\'';
 
     private ExecutorService executorService;
 
@@ -60,11 +59,10 @@ public class CharacterInputFileReader implements InputFileReader, InitializingBe
 
                     if (chunkSplitPolicy.test(charAccumulator)) {
                         String fileChunk = charAccumulator.toString();
-                        int splitIndex = Arrays.stream(WORDS_SEPARATOR)
-                                .mapToInt(fileChunk::lastIndexOf).filter(index -> index >= 0)
-                                .max()
-                                .orElseThrow(() -> new IllegalArgumentException(String.format("Unable to find any word separator among %s in the string '%s'", WORDS_SEPARATOR.toString(), fileChunk)));
-
+                        int splitIndex = this.lastIndexOfNonLetterOrDigit(fileChunk);
+                        if(splitIndex == CHARACTER_NOT_FOUND_MARKER){
+                            throw new IllegalArgumentException(String.format("Unable to find any word separator among in the string '%s'", fileChunk));
+                        }
                         processChunk(FILE_NAME, chunkId++, fileChunk.substring(0, splitIndex), fileChunkConsumer);
                         charAccumulator = new StringBuilder(fileChunk.substring(splitIndex));
                     }
@@ -97,5 +95,17 @@ public class CharacterInputFileReader implements InputFileReader, InitializingBe
     @Override
     public void afterPropertiesSet() throws Exception {
         executorService = Executors.newSingleThreadExecutor();
+    }
+
+    public int lastIndexOfNonLetterOrDigit(String str)
+    {
+        for (int i = str.length() - 1; i >= 0; i--){
+            char testChar = str.charAt(i);
+            if(Character.isLetterOrDigit(testChar) == false && UNDESCORE != testChar && SINGLE_QUOTE != testChar){
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  */
 public class UniqueWordsUsageStatisticsFunction implements Function<String, Map<String, Long>>
 {
-    public static final String ALL_EXCEPT_WORD_CHRACTER_PATTERN = "\\W+";
+    public static final String ALL_EXCEPT_WORD_CHRACTER_PATTERN = "[\\W\\']+";
 
     @Override
     public Map<String, Long> apply(String chunkContent)

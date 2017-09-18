@@ -37,4 +37,19 @@ public class UniqueWordsUsageStatisticsFunctionTest
 
         Assertions.assertThat(function.apply(textToParse)).isEqualTo(expected);
     }
+
+    @Test
+    public void calculateWordsStatisticsNoSpaces()
+    {
+        String textToParse = "2512884832:2394719:San-Juan-Tecuaco";
+
+        Map<String, Long> expected = new HashMap<>();
+        expected.put("2512884832", 1l);
+        expected.put("2394719", 1l);
+        expected.put("San", 1l);
+        expected.put("Juan", 1l);
+        expected.put("Tecuaco", 1l);
+
+        Assertions.assertThat(function.apply(textToParse)).isEqualTo(expected);
+    }
 }
