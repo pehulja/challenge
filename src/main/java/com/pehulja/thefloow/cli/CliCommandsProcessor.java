@@ -1,19 +1,22 @@
 package com.pehulja.thefloow.cli;
 
-import com.pehulja.thefloow.metric.MetricType;
-import com.pehulja.thefloow.metric.WordsMetric;
-import com.pehulja.thefloow.service.metric.MetricsService;
-import com.pehulja.thefloow.service.queue.statistics.QueueStatisticsService;
-import com.pehulja.thefloow.service.text_processing.FileProcessor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-import java.util.Optional;
+import com.pehulja.thefloow.metric.MetricType;
+import com.pehulja.thefloow.metric.WordsMetric;
+import com.pehulja.thefloow.service.metric.MetricsService;
+import com.pehulja.thefloow.service.queue.statistics.QueueStatisticsService;
+import com.pehulja.thefloow.service.text_processing.FileProcessor;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by eyevpek on 2017-09-12.
@@ -23,6 +26,7 @@ import java.util.Optional;
 public class CliCommandsProcessor implements CommandMarker {
     private static final String METRIC_FORMAT_OUTPUT = "Metric '%s': words: [%s], value %d";
     private static final String METRIC_CANT_BE_CALCULATED = "Metric '%s' not applicable or can't be calculated";
+    private static final int LIMIT_WORDS_TO_SHOW = 200;
 
     @Autowired
     private QueueStatisticsService queueStatisticsService;
@@ -45,7 +49,9 @@ public class CliCommandsProcessor implements CommandMarker {
 
         for (Map.Entry<MetricType, Optional<WordsMetric>> metric : metrics.entrySet()) {
             result.append(metric.getValue()
-                    .map(words -> String.format(METRIC_FORMAT_OUTPUT, metric.getKey().name(), words.getWords(), words.getUsageCounter()))
+                    .map(words -> String.format(METRIC_FORMAT_OUTPUT, metric.getKey().name(),
+                            words.getWords().size() > LIMIT_WORDS_TO_SHOW ? new ArrayList<>(words.getWords()).subList(0, LIMIT_WORDS_TO_SHOW - 1).toString() + "..." : words.getWords().toString(),
+                            words.getUsageCounter()))
                     .orElse(String.format(METRIC_CANT_BE_CALCULATED, metric.getKey())));
             result.append('\n');
         }
