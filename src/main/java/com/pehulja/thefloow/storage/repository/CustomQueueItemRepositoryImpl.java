@@ -20,8 +20,7 @@ public class CustomQueueItemRepositoryImpl implements CustomQueueItemRepository 
     private MongoTemplate mongoTemplate;
 
     @Autowired
-    public Optional<QueueItem> poll()
-    {
+    public Optional<QueueItem> poll() {
         Query query = new Query();
         query.limit(1);
 

@@ -11,14 +11,12 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 /**
  * Parent for some integration tests to clean up in-memory Mongo database
  */
-public abstract class AbstractTestWithMongo
-{
+public abstract class AbstractTestWithMongo {
     @Autowired
     private MongoTemplate mongoTemplate;
 
     @Before
-    public void cleanupInMemoryMongoDatabase()
-    {
+    public void cleanupInMemoryMongoDatabase() {
         mongoTemplate.getDb().dropDatabase();
     }
 }

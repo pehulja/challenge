@@ -1,13 +1,8 @@
 package com.pehulja.thefloow.storage.documents;
 
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.function.BinaryOperator;
@@ -21,15 +16,14 @@ import java.util.function.BinaryOperator;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode
-public class Word
-{
+public class Word {
     @Id
     private String word;
 
     @Indexed
     private Long counter;
 
-    public static class Reduce implements BinaryOperator<Word>{
+    public static class Reduce implements BinaryOperator<Word> {
 
         @Override
         public Word apply(Word a, Word b) {

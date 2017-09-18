@@ -10,14 +10,12 @@ import java.util.Optional;
  * Created by eyevpek on 2017-09-12.
  */
 @Service
-public class LeastFrequentlyUsedWordMetricProcessor extends AbstractMetricProcessor implements MetricProcessor
-{
+public class LeastFrequentlyUsedWordMetricProcessor extends AbstractMetricProcessor implements MetricProcessor {
     @Autowired
     private CustomWordRepository customWordRepository;
 
     @Override
-    public MetricType getMetricType()
-    {
+    public MetricType getMetricType() {
         return MetricType.LEAST_FREQUENTLY_USED;
     }
 

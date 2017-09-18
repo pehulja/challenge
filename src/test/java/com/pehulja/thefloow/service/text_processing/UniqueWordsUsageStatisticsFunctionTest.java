@@ -1,33 +1,30 @@
 package com.pehulja.thefloow.service.text_processing;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by baske on 12.09.2017.
  */
-public class UniqueWordsUsageStatisticsFunctionTest
-{
+public class UniqueWordsUsageStatisticsFunctionTest {
     private UniqueWordsUsageStatisticsFunction function;
 
     @Captor
     private ArgumentCaptor<Map<String, Long>> argumentCaptor;
 
     @Before
-    public void setup()
-    {
+    public void setup() {
         function = new UniqueWordsUsageStatisticsFunction();
     }
 
     @Test
-    public void calculateWordsStatistics()
-    {
+    public void calculateWordsStatistics() {
         String textToParse = "hello>hi. hello\nhi hello-hi hello_hi hi\n";
 
         Map<String, Long> expected = new HashMap<>();
@@ -39,8 +36,7 @@ public class UniqueWordsUsageStatisticsFunctionTest
     }
 
     @Test
-    public void calculateWordsStatisticsNoSpaces()
-    {
+    public void calculateWordsStatisticsNoSpaces() {
         String textToParse = "2512884832:2394719:San-Juan-Tecuaco";
 
         Map<String, Long> expected = new HashMap<>();

@@ -6,7 +6,6 @@ import com.pehulja.thefloow.storage.documents.QueueItem;
 import com.pehulja.thefloow.storage.documents.Word;
 import com.pehulja.thefloow.storage.repository.CustomWordRepository;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -19,8 +18,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by baske on 18.09.2017.

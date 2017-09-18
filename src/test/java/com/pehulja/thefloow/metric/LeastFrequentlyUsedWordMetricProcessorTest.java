@@ -16,8 +16,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
-
 /**
  * Created by baske on 18.09.2017.
  */

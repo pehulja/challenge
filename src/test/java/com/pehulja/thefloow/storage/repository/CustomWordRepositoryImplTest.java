@@ -14,10 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by baske on 17.09.2017.
@@ -26,7 +23,7 @@ import static org.junit.Assert.*;
 @SpringBootTest
 @ActiveProfiles("test")
 
-public class CustomWordRepositoryImplTest extends AbstractTestWithMongo{
+public class CustomWordRepositoryImplTest extends AbstractTestWithMongo {
     @Autowired
     private WordRepository wordRepository;
 
@@ -34,7 +31,7 @@ public class CustomWordRepositoryImplTest extends AbstractTestWithMongo{
     private CustomWordRepository customWordRepository;
 
     @Before
-    public void backloadData(){
+    public void backloadData() {
         List<Word> words = new ArrayList<>();
         words.add(Word.builder().word("a").counter(1l).build());
         words.add(Word.builder().word("n").counter(1l).build());
@@ -67,7 +64,7 @@ public class CustomWordRepositoryImplTest extends AbstractTestWithMongo{
     @Test
     public void mergeMultithread() throws Exception {
         ExecutorService scheduledExecutorService = Executors.newFixedThreadPool(5);
-        for(int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
             scheduledExecutorService.submit(() -> {
                 List<Word> input = new ArrayList<>();
                 input.add(Word.builder().word("a").counter(1l).build());

@@ -9,8 +9,7 @@ import java.util.Set;
 /**
  * Created by eyevpek on 2017-09-14.
  */
-public interface CustomWordRepository
-{
+public interface CustomWordRepository {
     void merge(List<Word> wordList);
 
     Optional<Long> findMax();

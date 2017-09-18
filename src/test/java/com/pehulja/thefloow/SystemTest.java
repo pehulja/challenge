@@ -6,8 +6,6 @@ import com.pehulja.thefloow.metric.WordsMetric;
 import com.pehulja.thefloow.service.metric.MetricsService;
 import com.pehulja.thefloow.service.queue.statistics.QueueStatisticsService;
 import com.pehulja.thefloow.storage.documents.QueueStatistics;
-import com.pehulja.thefloow.storage.documents.Word;
-import com.pehulja.thefloow.storage.repository.WordRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,10 +16,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * Created by baske on 18.09.2017.
@@ -50,7 +46,8 @@ public class SystemTest extends AbstractTestWithMongo {
         do {
             Thread.sleep(30000);
             queueStatistics = queueStatisticsService.getQueueStatistics();
-        }while (queueStatistics.getFailedToProcess() + queueStatistics.getPushedToQueue() != queueStatistics.getPushedToQueue());
+        }
+        while (queueStatistics.getFailedToProcess() + queueStatistics.getPushedToQueue() != queueStatistics.getPushedToQueue());
         Assertions.assertThat(queueStatistics.getPushedToQueue()).isEqualTo(101l);
         Assertions.assertThat(queueStatistics.getSuccessfullyProcessed()).isEqualTo(queueStatistics.getPushedToQueue());
 

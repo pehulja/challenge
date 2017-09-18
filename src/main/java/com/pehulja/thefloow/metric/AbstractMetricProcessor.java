@@ -10,8 +10,7 @@ import java.util.function.Function;
  * Created by eyevpek on 2017-09-12.
  */
 @Setter
-public abstract class AbstractMetricProcessor implements MetricProcessor, Function<Long, WordsMetric>
-{
+public abstract class AbstractMetricProcessor implements MetricProcessor, Function<Long, WordsMetric> {
     @Autowired
     private CustomWordRepository customWordRepository;
 

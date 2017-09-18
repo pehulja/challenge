@@ -1,11 +1,7 @@
 package com.pehulja.thefloow.service.queue.statistics;
 
-import static com.pehulja.thefloow.storage.documents.QueueStatistics.FAILED;
-import static com.pehulja.thefloow.storage.documents.QueueStatistics.PUSHED;
-import static com.pehulja.thefloow.storage.documents.QueueStatistics.SUCCESS;
-
-import java.util.Optional;
-
+import com.pehulja.thefloow.storage.documents.QueueStatistics;
+import com.pehulja.thefloow.storage.repository.QueueStatisticsRepository;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -16,15 +12,15 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import com.pehulja.thefloow.storage.documents.QueueStatistics;
-import com.pehulja.thefloow.storage.repository.QueueStatisticsRepository;
+import java.util.Optional;
+
+import static com.pehulja.thefloow.storage.documents.QueueStatistics.*;
 
 /**
  * Created by eyevpek on 2017-09-12.
  */
 @Service
-public class DefaultQueueStatisticsServiceImpl implements QueueStatisticsService, InitializingBean
-{
+public class DefaultQueueStatisticsServiceImpl implements QueueStatisticsService, InitializingBean {
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -42,26 +38,22 @@ public class DefaultQueueStatisticsServiceImpl implements QueueStatisticsService
             .build();
 
     @Override
-    public QueueStatistics incrementQueue()
-    {
+    public QueueStatistics incrementQueue() {
         return incrementField(PUSHED);
     }
 
     @Override
-    public QueueStatistics incrementSuccessfullyProcessed()
-    {
+    public QueueStatistics incrementSuccessfullyProcessed() {
         return incrementField(SUCCESS);
     }
 
     @Override
-    public QueueStatistics incrementFailedToProcess()
-    {
+    public QueueStatistics incrementFailedToProcess() {
         return incrementField(FAILED);
     }
 
     @Override
-    public QueueStatistics getQueueStatistics()
-    {
+    public QueueStatistics getQueueStatistics() {
         return Optional.ofNullable(queueStatisticsRepository.findAll().get(0)).map(queueStatistics ->
         {
             queueStatistics.setPossibleLostOrInProgress(queueStatistics.getPushedToQueue() - queueStatistics.getSuccessfullyProcessed() - queueStatistics.getFailedToProcess());
@@ -69,8 +61,7 @@ public class DefaultQueueStatisticsServiceImpl implements QueueStatisticsService
         }).orElse(DEFAULT_STATISTICS);
     }
 
-    private QueueStatistics incrementField(String fieldName)
-    {
+    private QueueStatistics incrementField(String fieldName) {
         Query query = new Query();
         query.addCriteria(Criteria.where("id").is(QUEUE_STATISTICS_DOC_ID));
 
@@ -81,14 +72,10 @@ public class DefaultQueueStatisticsServiceImpl implements QueueStatisticsService
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception
-    {
-        try
-        {
+    public void afterPropertiesSet() throws Exception {
+        try {
             queueStatisticsRepository.insert(DEFAULT_STATISTICS);
-        }
-        catch (DuplicateKeyException | com.mongodb.DuplicateKeyException ex)
-        {
+        } catch (DuplicateKeyException | com.mongodb.DuplicateKeyException ex) {
             //ignore
             // TODO: Fix it
         }

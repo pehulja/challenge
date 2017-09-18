@@ -1,10 +1,7 @@
 package com.pehulja.thefloow.storage.repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Lists;
+import com.pehulja.thefloow.storage.documents.Word;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.BulkOperations;
@@ -15,15 +12,16 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
-import com.google.common.collect.Lists;
-import com.pehulja.thefloow.storage.documents.Word;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by eyevpek on 2017-09-14.
  */
 @Repository
-public class CustomWordRepositoryImpl implements CustomWordRepository
-{
+public class CustomWordRepositoryImpl implements CustomWordRepository {
     public static final String WORD_FIELD = "word";
     public static final String ID_FIELD = "_id";
 
@@ -34,8 +32,7 @@ public class CustomWordRepositoryImpl implements CustomWordRepository
     private MongoTemplate mongoTemplate;
 
     @Override
-    public void merge(List<Word> wordList)
-    {
+    public void merge(List<Word> wordList) {
         List<Pair<Query, Update>> batchPayload = wordList.parallelStream()
                 .map(word ->
                 {

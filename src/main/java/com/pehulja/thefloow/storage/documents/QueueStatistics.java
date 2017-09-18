@@ -1,16 +1,10 @@
 package com.pehulja.thefloow.storage.documents;
 
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Field;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * Created by eyevpek on 2017-09-12.
@@ -19,10 +13,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @Builder
 @Data
-@EqualsAndHashCode (exclude = "id")
-@ToString (exclude = "id")
-public class QueueStatistics
-{
+@EqualsAndHashCode(exclude = "id")
+@ToString(exclude = "id")
+public class QueueStatistics {
     @Id
     @Indexed
     private String id;
@@ -36,13 +29,13 @@ public class QueueStatistics
     @Transient
     public static final String FAILED = "failed";
 
-    @Field (PUSHED)
+    @Field(PUSHED)
     private long pushedToQueue;
 
-    @Field (SUCCESS)
+    @Field(SUCCESS)
     private long successfullyProcessed;
 
-    @Field (FAILED)
+    @Field(FAILED)
     private long failedToProcess;
 
     @Transient
