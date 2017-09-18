@@ -1,6 +1,12 @@
 package com.pehulja.thefloow.filereader;
 
-import com.pehulja.thefloow.storage.documents.FileChunk;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,12 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Future;
+import com.pehulja.thefloow.storage.documents.FileChunk;
 
 /**
  * Created by eyevpek on 2017-09-11.
@@ -29,8 +30,7 @@ public class CharacterInputFileReaderTest {
         List<FileChunk> expected = new ArrayList<>();
         expected.add(FileChunk.builder().chunkId(0l).fileName("testFile.txt").content("aa bb").build());
         expected.add(FileChunk.builder().chunkId(1l).fileName("testFile.txt").content(" ccc").build());
-        expected.add(FileChunk.builder().chunkId(2l).fileName("testFile.txt").content(" dddd\r").build());
-        expected.add(FileChunk.builder().chunkId(3l).fileName("testFile.txt").content("\ne p").build());
+        expected.add(FileChunk.builder().chunkId(2l).fileName("testFile.txt").content(" dddd").build());
 
         Path inputFile = Paths.get(this.getClass().getClassLoader().getResource("testFile.txt").toURI());
         List<FileChunk> actual = new CopyOnWriteArrayList<>();
@@ -47,7 +47,6 @@ public class CharacterInputFileReaderTest {
         expected.add(FileChunk.builder().chunkId(0l).fileName("testFile.txt").content("aa bb").build());
         expected.add(FileChunk.builder().chunkId(1l).fileName("testFile.txt").content(" ccc").build());
         expected.add(FileChunk.builder().chunkId(2l).fileName("testFile.txt").content(" dddd").build());
-        expected.add(FileChunk.builder().chunkId(3l).fileName("testFile.txt").content("\r\ne p").build());
 
         Path inputFile = Paths.get(this.getClass().getClassLoader().getResource("testFile.txt").toURI());
         List<FileChunk> actual = new ArrayList<>();
