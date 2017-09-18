@@ -45,7 +45,6 @@ public class CustomWordRepositoryImpl implements CustomWordRepository {
                     return Pair.of(query, update);
                 }).collect(Collectors.toList());
 
-        //mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Word.class).upsert(wordsUpdate).execute();
         List<List<Pair<Query, Update>>> partitions = Lists.partition(batchPayload, BATCH_SIZE);
         partitions.forEach(partition -> mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Word.class).upsert(partition).execute());
     }

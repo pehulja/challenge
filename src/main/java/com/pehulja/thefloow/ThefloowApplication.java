@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 @SpringBootApplication
 public class ThefloowApplication {
-    private static final Pattern MONGO_CONNECTION_PATTER = Pattern.compile("(.+)\\:(\\d+)");
+    private static final Pattern MONGO_CONNECTION_PATTER = Pattern.compile("^(.+)\\:(\\d+)$");
 
     public static void main(String[] args) throws IOException {
         if(args.length != 2 || !args[0].equals("-mongo") || args[1].isEmpty()){
