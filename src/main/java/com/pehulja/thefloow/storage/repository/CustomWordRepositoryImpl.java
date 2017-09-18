@@ -30,6 +30,7 @@ public class CustomWordRepositoryImpl implements CustomWordRepository {
 
     public static final String COUNTER_FIELD = "counter";
     public static final int BATCH_SIZE = 500;
+    public static final int LIMIT_WORDS = 2000;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -100,6 +101,7 @@ public class CustomWordRepositoryImpl implements CustomWordRepository {
         Query query = new Query();
         query.addCriteria(Criteria.where(COUNTER_FIELD).is(count));
         query.fields().exclude(COUNTER_FIELD);
+        query.limit(LIMIT_WORDS);
 
         return mongoTemplate.find(query, Word.class).stream().map(Word::getWord).collect(Collectors.toSet());
     }
