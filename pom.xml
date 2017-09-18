@@ -97,7 +97,7 @@
 		<!--Use own copy for now with fix-->
 		<repository>
 			<id>spring-boot-starter-shell-mvn-repo</id>
-			<url>https://raw.github.com/pehulja/spring-boot-starter-shell/repository/</url>
+			<url>https://raw.github.com/pehulja/spring-boot-starter-shell/repository/org/mvnsearch/spring/boot/spring-boot-starter-shell/</url>
 			<snapshots>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
