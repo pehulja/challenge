@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
 
 /**
  * Created by eyevpek on 2017-09-11.
@@ -34,7 +35,8 @@ public class CharacterInputFileReaderTest {
         Path inputFile = Paths.get(this.getClass().getClassLoader().getResource("testFile.txt").toURI());
         List<FileChunk> actual = new CopyOnWriteArrayList<>();
 
-        reader.chunksProcessor(inputFile, actual::add);
+        Future<?> task = reader.chunksProcessor(inputFile, actual::add);
+        task.get();
 
         Assertions.assertThat(actual).containsAll(expected);
     }
