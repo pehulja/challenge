@@ -1,9 +1,14 @@
 package com.pehulja.thefloow.storage.repository;
 
-import com.google.common.collect.Lists;
-import com.pehulja.thefloow.storage.documents.Word;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.BulkOperationException;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -12,10 +17,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.google.common.collect.Lists;
+import com.pehulja.thefloow.storage.documents.Word;
 
 /**
  * Created by eyevpek on 2017-09-14.
@@ -31,22 +34,45 @@ public class CustomWordRepositoryImpl implements CustomWordRepository {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Value ("${mongo.retry-count}")
+    private Integer maxRetryAttempts;
+
     @Override
     public void merge(List<Word> wordList) {
-        List<Pair<Query, Update>> batchPayload = wordList.parallelStream()
-                .map(word ->
-                {
-                    Query query = new Query();
-                    query.addCriteria(Criteria.where(WORD_FIELD).is(word.getWord()));
+        this.merge(wordList, 0);
+    }
 
-                    Update update = new Update();
-                    update.inc(COUNTER_FIELD, word.getCounter());
+    public void merge(List<Word> wordList, int attempt)
+    {
+        try
+        {
+            List<Pair<Query, Update>> batchPayload = wordList.parallelStream()
+                    .map(word ->
+                    {
+                        Query query = new Query();
+                        query.addCriteria(Criteria.where(WORD_FIELD).is(word.getWord()));
 
-                    return Pair.of(query, update);
-                }).collect(Collectors.toList());
+                        Update update = new Update();
+                        update.inc(COUNTER_FIELD, word.getCounter());
 
-        List<List<Pair<Query, Update>>> partitions = Lists.partition(batchPayload, BATCH_SIZE);
-        partitions.forEach(partition -> mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Word.class).upsert(partition).execute());
+                        return Pair.of(query, update);
+                    }).collect(Collectors.toList());
+
+            List<List<Pair<Query, Update>>> partitions = Lists.partition(batchPayload, BATCH_SIZE);
+            partitions.forEach(partition -> mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Word.class).upsert(partition).execute());
+        }
+        catch (BulkOperationException bulkOperationException)
+        {
+            if (attempt <= maxRetryAttempts)
+            {
+                //Attempt to push this again due to well known issue https://jira.mongodb.org/browse/SERVER-14322
+                merge(wordList, ++attempt);
+            }
+            else
+            {
+                throw bulkOperationException;
+            }
+        }
     }
 
     @Override
