@@ -42,7 +42,7 @@ public class CliCommandsProcessor implements CommandMarker {
         return queueStatisticsService.getQueueStatistics().toString();
     }
 
-    @CliCommand(value = {"print-word-statistics"})
+    @CliCommand (value = {"print-word-statistics"}, help = "output will be limited to 200 words if more words match some metric")
     public String getOverallStatistics() {
         StringBuilder result = new StringBuilder();
         Map<MetricType, Optional<WordsMetric>> metrics = metricService.get();
